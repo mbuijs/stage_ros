@@ -325,8 +325,6 @@ StageNode::StageNode(int argc, char** argv, bool gui, const char* fname, bool us
 int
 StageNode::SubscribeModels()
 {
-//    n_->set_parameter(rclcpp::Parameter("/use_sim_time", true));
-
     for (size_t r = 0; r < this->positionmodels.size(); r++)
     {
         StageRobot* new_robot = new StageRobot;
