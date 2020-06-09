@@ -240,11 +240,11 @@ StageNode::ghfunc(Stg::Model* mod, StageNode* node)
      node->lasermodels.push_back(dynamic_cast<Stg::ModelRanger *>(mod));
   }
   if (dynamic_cast<Stg::ModelPosition *>(mod)) {
-     Stg::ModelPosition * p = dynamic_cast<Stg::ModelPosition *>(mod);
+      Stg::ModelPosition * p = dynamic_cast<Stg::ModelPosition *>(mod);
       // remember initial poses
       node->positionmodels.push_back(p);
       node->initial_poses.push_back(p->GetGlobalPose());
-    }
+  }
   if (dynamic_cast<Stg::ModelCamera *>(mod)) {
      node->cameramodels.push_back(dynamic_cast<Stg::ModelCamera *>(mod));
   }
@@ -333,15 +333,15 @@ StageNode::SubscribeModels()
         new_robot->positionmodel = this->positionmodels[r];
         new_robot->positionmodel->Subscribe();
 
-    RCLCPP_INFO(n_->get_logger(),  "Subscribed to Stage position model \"%s\"", this->positionmodels[r]->Token() );
+        RCLCPP_INFO(n_->get_logger(),  "Subscribed to Stage position model \"%s\"", this->positionmodels[r]->Token() );
 		      
         for (size_t s = 0; s < this->lasermodels.size(); s++)
         {
-	  if (this->lasermodels[s] and this->lasermodels[s]->Parent() == new_robot->positionmodel)
+            if (this->lasermodels[s] and this->lasermodels[s]->Parent() == new_robot->positionmodel)
             {
                 new_robot->lasermodels.push_back(this->lasermodels[s]);
                 this->lasermodels[s]->Subscribe();
-          RCLCPP_INFO(n_->get_logger(),  "subscribed to Stage ranger \"%s\"", this->lasermodels[s]->Token() );
+                RCLCPP_INFO(n_->get_logger(),  "subscribed to Stage ranger \"%s\"", this->lasermodels[s]->Token() );
             }
         }
 
@@ -352,21 +352,21 @@ StageNode::SubscribeModels()
                 new_robot->cameramodels.push_back(this->cameramodels[s]);
                 this->cameramodels[s]->Subscribe();
 
-        RCLCPP_INFO(n_->get_logger(),  "subscribed to Stage camera model \"%s\"", this->cameramodels[s]->Token() );
+                RCLCPP_INFO(n_->get_logger(),  "subscribed to Stage camera model \"%s\"", this->cameramodels[s]->Token() );
             }
         }
 
-	// TODO - print the topic names nicely as well
+        // TODO - print the topic names nicely as well
         RCLCPP_INFO(n_->get_logger(), "Robot %s provided %lu rangers and %lu cameras",
-		 new_robot->positionmodel->Token(),
-		 new_robot->lasermodels.size(),
-		 new_robot->cameramodels.size() );
+            new_robot->positionmodel->Token(),
+            new_robot->lasermodels.size(),
+            new_robot->cameramodels.size() );
 
-        new_robot->odom_pub = n_->create_publisher<nav_msgs::msg::Odometry>(mapName(ODOM, r, static_cast<Stg::Model*>(new_robot->positionmodel)), 10);
-        new_robot->ground_truth_pub = n_->create_publisher<nav_msgs::msg::Odometry>(mapName(BASE_POSE_GROUND_TRUTH, r, static_cast<Stg::Model*>(new_robot->positionmodel)), 10);
-        new_robot->cmdvel_sub = n_->create_subscription<geometry_msgs::msg::Twist>(mapName(CMD_VEL, r, static_cast<Stg::Model*>(new_robot->positionmodel)),
-                                                                                   10,
-                                                                                   [this, r] (geometry_msgs::msg::Twist::ConstSharedPtr msg) {
+            new_robot->odom_pub = n_->create_publisher<nav_msgs::msg::Odometry>(mapName(ODOM, r, static_cast<Stg::Model*>(new_robot->positionmodel)), 10);
+            new_robot->ground_truth_pub = n_->create_publisher<nav_msgs::msg::Odometry>(mapName(BASE_POSE_GROUND_TRUTH, r, static_cast<Stg::Model*>(new_robot->positionmodel)), 10);
+            new_robot->cmdvel_sub = n_->create_subscription<geometry_msgs::msg::Twist>(mapName(CMD_VEL, r, static_cast<Stg::Model*>(new_robot->positionmodel)),
+                                                                                       10,
+                                                                                       [this, r] (geometry_msgs::msg::Twist::ConstSharedPtr msg) {
             this->cmdvelReceived(r, msg);
         });
 
@@ -421,11 +421,11 @@ StageNode::UpdateWorld()
 void
 StageNode::WorldCallback()
 {
-  if( ! rclcpp::ok() ) {
-    RCLCPP_INFO(n_->get_logger(),  "ros::ok() is false. Quitting." );
-    this->world->QuitAll();
-    return;
-  }
+    if( ! rclcpp::ok() ) {
+        RCLCPP_INFO(n_->get_logger(),  "ros::ok() is false. Quitting." );
+        this->world->QuitAll();
+        return;
+    }
   
     std::scoped_lock lock(msg_lock);
 
