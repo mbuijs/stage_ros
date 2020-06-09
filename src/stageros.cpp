@@ -553,7 +553,7 @@ StageNode::WorldCallback()
             tfRobot.header.frame_id = mapName("odom", r, static_cast<Stg::Model*>(robotmodel->positionmodel));
             tfRobot.child_frame_id  = mapName("base_footprint", r, static_cast<Stg::Model*>(robotmodel->positionmodel));
             tfRobot.transform.translation.x = odom_msg.pose.pose.position.x;
-            tfRobot.transform.translation.y = odom_msg.pose.pose.position.x;
+            tfRobot.transform.translation.y = odom_msg.pose.pose.position.y;
             tfRobot.transform.translation.z = 0.0;
             tfRobot.transform.rotation = odom_msg.pose.pose.orientation;
             tf_broadcaster.sendTransform(tfRobot);
