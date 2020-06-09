@@ -814,11 +814,18 @@ main(int argc, const char** argv)
     if(sn.SubscribeModels() != 0)
         exit(-1);
 
-    std::thread t = std::thread([&sn] () { rclcpp::spin(sn.n_); });
+    std::thread t = std::thread([&sn] () {
+        while (rclcpp::ok())
+        {
+            rclcpp::spin(sn.n_);
+        }
+    });
 
     sn.world->Start();
 
     Stg::World::Run();
+
+    rclcpp::shutdown();
     
     t.join();
 
