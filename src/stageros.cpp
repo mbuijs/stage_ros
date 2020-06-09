@@ -527,7 +527,7 @@ StageNode::WorldCallback()
         // Translate into ROS message format and publish
         {
             tf2::Quaternion odomQ;
-            odomQ.setEuler(robotmodel->positionmodel->est_pose.a, 0.0, 0.0);
+            odomQ.setRPY(0.0, 0.0, robotmodel->positionmodel->est_pose.a);
 
             nav_msgs::Odometry odom_msg;
             odom_msg.pose.pose.position.x = robotmodel->positionmodel->est_pose.x;
