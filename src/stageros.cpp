@@ -149,7 +149,7 @@ private:
 public:
     // Constructor; stage itself needs argc/argv.  fname is the .world file
     // that stage should load.
-    StageNode(int argc, char** argv, bool gui, const char* fname, bool use_model_names);
+    StageNode(int argc, const char** argv, bool gui, const char* fname, bool use_model_names);
     ~StageNode();
 
     // Subscribe to models of interest.  Currently, we find and subscribe
@@ -276,7 +276,7 @@ StageNode::cmdvelReceived(size_t idx, geometry_msgs::msg::Twist::ConstSharedPtr 
     this->base_last_cmd = this->sim_time;
 }
 
-StageNode::StageNode(int argc, char** argv, bool gui, const char* fname, bool use_model_names)
+StageNode::StageNode(int argc, const char** argv, bool gui, const char* fname, bool use_model_names)
     : n_(std::make_shared<rclcpp::Node>("stageros"))
     , isDepthCanonical(n_->declare_parameter<bool>("is_depth_canonical", true))
     , tf_broadcaster(n_.get())
@@ -298,7 +298,8 @@ StageNode::StageNode(int argc, char** argv, bool gui, const char* fname, bool us
     }
 
     // initialize libstage
-    Stg::Init( &argc, &argv );
+    char **args = const_cast<char**>(argv);
+    Stg::Init( &argc, &args );
 
     if(gui)
         this->world = new Stg::WorldGui(600, 400, "Stage (ROS)");
@@ -776,27 +777,39 @@ StageNode::WorldCallback()
 }
 
 int 
-main(int argc, char** argv)
+main(int argc, const char** argv)
 {
-    if( argc < 2 )
+    const std::vector<std::string> args = rclcpp::init_and_remove_ros_arguments(argc, argv);
+
+    bool gui = true;
+    bool use_model_names = false;
+    std::vector<const char *> other_args;
+    for(size_t i = 0; i < args.size(); i++)
+    {
+        if(args[i] == "-g")
+        {
+            gui = false;
+        }
+        else if(args[i] == "-u")
+        {
+            use_model_names = true;
+        }
+        else
+        {
+            other_args.push_back(args[i].c_str());
+        }
+    }
+    if( other_args.size() < 2 )
     {
         puts(USAGE);
         exit(-1);
     }
 
-    rclcpp::init(argc, argv);
+    auto last_arg = other_args.end() - 1;
+    const char *world_name = *last_arg;
+    other_args.erase(last_arg);
 
-    bool gui = true;
-    bool use_model_names = false;
-    for(int i=0;i<(argc-1);i++)
-    {
-        if(!strcmp(argv[i], "-g"))
-            gui = false;
-        if(!strcmp(argv[i], "-u"))
-            use_model_names = true;
-    }
-
-    StageNode sn(argc-1,argv,gui,argv[argc-1], use_model_names);
+    StageNode sn(other_args.size(), other_args.data(), gui, world_name, use_model_names);
 
     if(sn.SubscribeModels() != 0)
         exit(-1);
