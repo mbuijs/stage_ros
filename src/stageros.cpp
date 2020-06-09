@@ -165,7 +165,7 @@ public:
     bool UpdateWorld();
 
     // Message callback for a MsgBaseVel message, which set velocities.
-    void cmdvelReceived(int idx, geometry_msgs::msg::Twist::ConstSharedPtr msg);
+    void cmdvelReceived(size_t idx, geometry_msgs::msg::Twist::ConstSharedPtr msg);
 
     // Service callback for soft reset
     bool cb_reset_srv(std_srvs::srv::Empty::Request::SharedPtr request, std_srvs::srv::Empty::Response::SharedPtr response);
@@ -267,7 +267,7 @@ StageNode::cb_reset_srv(std_srvs::srv::Empty::Request::SharedPtr /*request*/, st
 
 
 void
-StageNode::cmdvelReceived(int idx, geometry_msgs::msg::Twist::ConstSharedPtr msg)
+StageNode::cmdvelReceived(size_t idx, geometry_msgs::msg::Twist::ConstSharedPtr msg)
 {
     std::scoped_lock lock(msg_lock);
     this->positionmodels[idx]->SetSpeed(msg->linear.x,
@@ -364,9 +364,12 @@ StageNode::SubscribeModels()
 
         new_robot->odom_pub = n_->create_publisher<nav_msgs::msg::Odometry>(mapName(ODOM, r, static_cast<Stg::Model*>(new_robot->positionmodel)), 10);
         new_robot->ground_truth_pub = n_->create_publisher<nav_msgs::msg::Odometry>(mapName(BASE_POSE_GROUND_TRUTH, r, static_cast<Stg::Model*>(new_robot->positionmodel)), 10);
-//        new_robot->cmdvel_sub = n_->create_subscription<geometry_msgs::msg::Twist>(mapName(CMD_VEL, r, static_cast<Stg::Model*>(new_robot->positionmodel)),
-//                                                                                   10,
-//                                                                                   std::bind(&StageNode::cmdvelReceived, this, r, std::placeholders::_1));
+        new_robot->cmdvel_sub = n_->create_subscription<geometry_msgs::msg::Twist>(mapName(CMD_VEL, r, static_cast<Stg::Model*>(new_robot->positionmodel)),
+                                                                                   10,
+                                                                                   [this, r] (geometry_msgs::msg::Twist::ConstSharedPtr msg) {
+            this->cmdvelReceived(r, msg);
+        });
+
 
         for (size_t s = 0;  s < new_robot->lasermodels.size(); ++s)
         {
