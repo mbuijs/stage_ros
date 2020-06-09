@@ -9,7 +9,9 @@ find_package(catkin REQUIRED
     sensor_msgs
     std_msgs
     std_srvs
-    tf
+    tf2
+    tf2_ros
+    tf2_geometry_msgs
 )
 
 find_package(Boost REQUIRED COMPONENTS system thread)
