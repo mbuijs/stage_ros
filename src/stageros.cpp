@@ -37,7 +37,7 @@
 #include <geometry_msgs/msg/twist.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <rosgraph_msgs/msg/clock.hpp>
-#include <std_srvs/srv/empty.hpp>
+#include <std_srvs/srv/trigger.hpp>
 #include <tf2/transform_datatypes.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
@@ -108,7 +108,7 @@ private:
 
     // Used to remember initial poses for soft reset
     std::vector<Stg::Pose> initial_poses;
-    //TODO: ros::ServiceServer reset_srv_;
+    rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr reset_srv_;
   
     rclcpp::Publisher<rosgraph_msgs::msg::Clock>::SharedPtr clock_pub_;
     
@@ -168,7 +168,7 @@ public:
     void cmdvelReceived(size_t idx, geometry_msgs::msg::Twist::ConstSharedPtr msg);
 
     // Service callback for soft reset
-    bool cb_reset_srv(std_srvs::srv::Empty::Request::SharedPtr request, std_srvs::srv::Empty::Response::SharedPtr response);
+    void cb_reset_srv(std_srvs::srv::Trigger::Request::SharedPtr request, std_srvs::srv::Trigger::Response::SharedPtr response);
 
     // The main simulator object
     Stg::World* world;
@@ -253,15 +253,15 @@ StageNode::ghfunc(Stg::Model* mod, StageNode* node)
 
 
 
-bool
-StageNode::cb_reset_srv(std_srvs::srv::Empty::Request::SharedPtr /*request*/, std_srvs::srv::Empty::Response::SharedPtr /*response*/)
+void
+StageNode::cb_reset_srv(std_srvs::srv::Trigger::Request::SharedPtr /*request*/, std_srvs::srv::Trigger::Response::SharedPtr response)
 {
   RCLCPP_INFO(n_->get_logger(), "Resetting stage!");
   for (size_t r = 0; r < this->positionmodels.size(); r++) {
     this->positionmodels[r]->SetPose(this->initial_poses[r]);
     this->positionmodels[r]->SetStall(false);
   }
-  return true;
+  response->success = true;
 }
 
 
@@ -401,7 +401,10 @@ StageNode::SubscribeModels()
     clock_pub_ = n_->create_publisher<rosgraph_msgs::msg::Clock>("/clock", 10);
 
     // advertising reset service
-    //TODO:reset_srv_ = n_.advertiseService("reset_positions", &StageNode::cb_reset_srv, this);
+    reset_srv_ = n_->create_service<std_srvs::srv::Trigger>("reset_positions", std::bind(&StageNode::cb_reset_srv,
+                                                                                       this,
+                                                                                       std::placeholders::_1,
+                                                                                       std::placeholders::_2));
 
     return(0);
 }
