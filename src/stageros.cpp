@@ -498,11 +498,11 @@ StageNode::WorldCallback()
             txLaser.header.frame_id = mapName("base_link", r, static_cast<Stg::Model*>(robotmodel->positionmodel));
             if (robotmodel->lasermodels.size() > 1)
             {
-                txLaser.child_frame_id  = mapName("base_laser_link", r, static_cast<Stg::Model*>(robotmodel->positionmodel));
+                txLaser.child_frame_id  = mapName("base_laser_link", r, s, static_cast<Stg::Model*>(robotmodel->positionmodel));
             }
             else
             {
-                txLaser.child_frame_id  = mapName("base_laser_link", r, s, static_cast<Stg::Model*>(robotmodel->positionmodel));
+                txLaser.child_frame_id  = mapName("base_laser_link", r, static_cast<Stg::Model*>(robotmodel->positionmodel));
             }
             txLaser.transform.translation.x = lp.x;
             txLaser.transform.translation.y = lp.y;
