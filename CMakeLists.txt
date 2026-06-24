@@ -41,9 +41,18 @@ target_link_libraries(stageros
     ${Boost_LIBRARIES}
     ${STAGE_LIBRARIES}
     ${${PROJECT_NAME}_extra_libs}
+
+    ${geometry_msgs_TARGETS}
+    ${nav_msgs_TARGETS}
+    ${sensor_msgs_TARGETS}
+    ${std_msgs_TARGETS}
+    ${std_srvs_TARGETS}
+
+    rclcpp::rclcpp
+    tf2::tf2
+    tf2_ros::tf2_ros
+    tf2_geometry_msgs::tf2_geometry_msgs
 )
-ament_target_dependencies(stageros
-    ${dependencies})
 
 
 ## Install
