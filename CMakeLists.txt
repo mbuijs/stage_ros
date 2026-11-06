@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-find_package(Boost REQUIRED COMPONENTS system thread)
+find_package(Boost REQUIRED COMPONENTS thread)
 find_package(stage REQUIRED)
 
 set(dependencies
@@ -27,7 +27,6 @@ endforeach(dep)
 
 
 include_directories(
-    ${Boost_INCLUDE_DIRS}
     ${STAGE_INCLUDE_DIRS}
 )
 
@@ -38,20 +37,20 @@ if(UNIX AND NOT APPLE)
     set(${PROJECT_NAME}_extra_libs dl)
 endif()
 target_link_libraries(stageros
-    ${Boost_LIBRARIES}
-    ${STAGE_LIBRARIES}
     ${${PROJECT_NAME}_extra_libs}
-
     ${geometry_msgs_TARGETS}
     ${nav_msgs_TARGETS}
+
     ${sensor_msgs_TARGETS}
+    ${STAGE_LIBRARIES}
     ${std_msgs_TARGETS}
     ${std_srvs_TARGETS}
+    Boost::thread
 
     rclcpp::rclcpp
     tf2::tf2
-    tf2_ros::tf2_ros
     tf2_geometry_msgs::tf2_geometry_msgs
+    tf2_ros::tf2_ros
 )
 
 
